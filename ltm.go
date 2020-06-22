@@ -2335,6 +2335,22 @@ func (b *BigIP) ModifyVirtualServer(name string, config *VirtualServer) error {
 	return b.put(config, uriLtm, uriVirtual, name)
 }
 
+// AddClientSSLToVirtualServer adds clients SSL profile to an existing virtual server
+func (b *BigIP) AddClientSSLToVirtualServer(name string, config *VirtualServer) error {
+	for _, cs := range config.Profiles {
+		if cs.Context != CONTEXT_CLIENT {
+			continue
+		}
+		payload := struct {
+			Name string `json:"name"`
+		}{
+			Name: cs.Name,
+		}
+		return b.post(payload, uriMgmt, uriTm, uriLtm, uriVirtual, name, "profiles")
+	}
+	return nil
+}
+
 // VirtualServerProfiles gets the profiles currently associated with a virtual server.
 func (b *BigIP) VirtualServerProfiles(vs string) (*Profiles, error) {
 	var p Profiles
